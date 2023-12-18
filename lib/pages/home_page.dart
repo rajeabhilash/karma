@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:karma/db/database.dart';
+import 'package:karma/util/todo_tile.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:karma/util/todo_add_dialog.dart';
 import 'package:karma/util/todo_add_task_button.dart';
-import 'package:karma/util/todo_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,18 +16,19 @@ class _HomePageState extends State<HomePage> {
   final _controller = TextEditingController();
   final _editController = TextEditingController();
 
-  final List todosList = [
-    ['Task 1', false],
-    ['Task 2', false],
-    ['Task 3', false],
-    ['Task 4', false],
-    ['Task 5', false],
-    ['Task 6', false],
-  ];
+  final mybox = Hive.box('karma');
+  KarmaDatabase? db;
+
+  @override
+  void initState() {
+    db = KarmaDatabase();
+    super.initState();
+  }
 
   void toDoStateChanges(bool? value, int index) {
     setState(() {
-      todosList[index][1] = value!;
+      db!.toDoList[index][1] = value!;
+      db!.updateDataBase();
     });
   }
 
@@ -45,7 +48,8 @@ class _HomePageState extends State<HomePage> {
 
   void onSaved() {
     setState(() {
-      todosList.add([_controller.text, false]);
+      db!.toDoList.add([_controller.text, false]);
+      db!.updateDataBase();
       _controller.clear();
     });
     Navigator.of(context).pop();
@@ -53,14 +57,16 @@ class _HomePageState extends State<HomePage> {
 
   void deleteTask(int index) {
     setState(() {
-      todosList.removeAt(index);
+      db!.toDoList.removeAt(index);
+      db!.updateDataBase();
     });
   }
 
   void onEdited(int index) {
     Navigator.of(context).pop();
     setState(() {
-      todosList[index][0] = _editController.text;
+      db!.toDoList[index][0] = _editController.text;
+      db!.updateDataBase();
     });
   }
 
@@ -122,16 +128,16 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: todosList.length,
+        itemCount: db!.toDoList.length,
         itemBuilder: (context, index) {
           return ToDoTile(
-            taskName: todosList[index][0],
-            isCompleted: todosList[index][1],
+            taskName: db!.toDoList[index][0],
+            isCompleted: db!.toDoList[index][1],
             onChanged: (newValue) {
               toDoStateChanges(newValue, index);
             },
             deleteTaskFunction: (context) => deleteTask(index),
-            editTask: (context) => editTask(index, todosList[index][0]),
+            editTask: (context) => editTask(index, db!.toDoList[index][0]),
           );
         },
       ),

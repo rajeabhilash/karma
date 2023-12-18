@@ -37,10 +37,10 @@ class TodoAddDialog extends StatelessWidget {
               cursorRadius: const Radius.circular(8.0),
               style: const TextStyle(
                 fontSize: 18,
-                color: Colors.green,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
-                decorationColor: Colors.green,
+                decorationColor: Colors.lightGreen,
                 decorationStyle: TextDecorationStyle.solid,
                 decorationThickness: 2.0,
               ),
